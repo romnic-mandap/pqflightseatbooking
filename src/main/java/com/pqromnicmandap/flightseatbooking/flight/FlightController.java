@@ -30,18 +30,3 @@ public class FlightController {
         );
     }
 }
-
-/*
-@PostMapping(value="/meals", consumes={"application/json"}, produces={"application/json"})
-    public ResponseEntity<?> addMealItem(
-            @AuthenticationPrincipal User user,
-            @RequestBody @Valid MealItemCreationDTO mealItemCreationDTO
-    ){
-        return new ResponseEntity<>(
-                new MealItemCreationResponseDTO(
-                        mealItemService.createMealItem(user, mealItemCreationDTO)
-                ),
-                HttpStatus.CREATED
-        );
-    }
- */
