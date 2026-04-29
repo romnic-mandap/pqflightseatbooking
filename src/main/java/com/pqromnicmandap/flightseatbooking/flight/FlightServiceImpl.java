@@ -1,11 +1,14 @@
 package com.pqromnicmandap.flightseatbooking.flight;
 
+import com.pqromnicmandap.flightseatbooking.exception.ResourceNotFoundException;
 import com.pqromnicmandap.flightseatbooking.flight.dto.FlightCreationDTO;
 import com.pqromnicmandap.flightseatbooking.flight.dto.FlightDTO;
 import com.pqromnicmandap.flightseatbooking.seatbooking.SeatBookingService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class FlightServiceImpl implements FlightService {
@@ -78,6 +81,15 @@ public class FlightServiceImpl implements FlightService {
         }
 
         return convertFlightToFlightDTO(savedFlight);
+    }
+
+    @Override
+    public FlightDTO getFlight(Long id) {
+        Optional<Flight> flight = flightRepository.findById(id);
+        if(flight.isPresent()){
+            return convertFlightToFlightDTO(flight.get());
+        }
+        throw new ResourceNotFoundException("flightId not found: " + id);
     }
 
     private FlightDTO convertFlightToFlightDTO(Flight flight){

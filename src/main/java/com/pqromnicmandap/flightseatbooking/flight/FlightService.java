@@ -6,5 +6,6 @@ import com.pqromnicmandap.flightseatbooking.flight.dto.FlightDTO;
 public interface FlightService {
 
     FlightDTO createFlight(FlightCreationDTO flightCreationDTO);
+    FlightDTO getFlight(Long id);
 
 }

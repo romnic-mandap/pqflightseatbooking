@@ -1,9 +1,15 @@
 package com.pqromnicmandap.flightseatbooking.seatbooking;
 
 import com.pqromnicmandap.flightseatbooking.constants.Constants;
+import com.pqromnicmandap.flightseatbooking.exception.ResourceNotFoundException;
+import com.pqromnicmandap.flightseatbooking.flight.Flight;
+import com.pqromnicmandap.flightseatbooking.flight.dto.FlightDTO;
 import com.pqromnicmandap.flightseatbooking.seatbooking.dto.SeatBookingCreationDTO;
+import com.pqromnicmandap.flightseatbooking.seatbooking.dto.SeatBookingDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class SeatBookingServiceImpl implements SeatBookingService {
@@ -87,6 +93,28 @@ public class SeatBookingServiceImpl implements SeatBookingService {
             createSeatBooking(new SeatBookingCreationDTO(i+"D", Constants.Cabin.ECONOMY, Constants.SeatLocation.WINDOW, flightId));
         }
     }
+
+    @Override
+    public SeatBookingDTO getSeatBooking(Long seatBookingId) {
+        Optional<SeatBooking> seatBooking = seatBookingRepository.findById(seatBookingId);
+        if(seatBooking.isPresent()){
+            return convertSeatBookingToSeatBookingDTO(seatBooking.get());
+        }
+        throw new ResourceNotFoundException("seatBookingId not found: " + seatBookingId);
+    }
+
+    private SeatBookingDTO convertSeatBookingToSeatBookingDTO(SeatBooking seatBooking){
+        return new SeatBookingDTO(
+                seatBooking.getId(),
+                seatBooking.getSeatNumber(),
+                seatBooking.getCabinType(),
+                seatBooking.getSeatLocation(),
+                seatBooking.getStatus(),
+                seatBooking.getFlightId()
+        );
+    }
+
+
 
 
 }
