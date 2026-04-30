@@ -11,4 +11,7 @@ public interface SeatBookingService {
     void createSeatBookingAIRBUS_2032(Long flightId);
 
     SeatBookingDTO getSeatBooking(Long seatBookingId);
+
+    SeatBookingDTO bookSeatBooking(Long seatBookingId);
+    SeatBookingDTO cancelSeatBooking(Long seatBookingId);
 }

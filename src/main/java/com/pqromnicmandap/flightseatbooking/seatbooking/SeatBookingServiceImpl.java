@@ -1,11 +1,15 @@
 package com.pqromnicmandap.flightseatbooking.seatbooking;
 
 import com.pqromnicmandap.flightseatbooking.constants.Constants;
+import com.pqromnicmandap.flightseatbooking.exception.AlreadyAvailableException;
+import com.pqromnicmandap.flightseatbooking.exception.AlreadyBookedException;
 import com.pqromnicmandap.flightseatbooking.exception.ResourceNotFoundException;
 import com.pqromnicmandap.flightseatbooking.flight.Flight;
+import com.pqromnicmandap.flightseatbooking.flight.FlightService;
 import com.pqromnicmandap.flightseatbooking.flight.dto.FlightDTO;
 import com.pqromnicmandap.flightseatbooking.seatbooking.dto.SeatBookingCreationDTO;
 import com.pqromnicmandap.flightseatbooking.seatbooking.dto.SeatBookingDTO;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +19,19 @@ import java.util.Optional;
 public class SeatBookingServiceImpl implements SeatBookingService {
 
     private final SeatBookingRepository seatBookingRepository;
+    private FlightService flightService;
 
     @Autowired
     public SeatBookingServiceImpl(SeatBookingRepository seatBookingRepository) {
         this.seatBookingRepository = seatBookingRepository;
     }
+
+    @Autowired
+    public void setFlightService(FlightService flightService){
+        this.flightService = flightService;
+    }
+
+
 
     @Override
     public void createSeatBooking(SeatBookingCreationDTO seatBookingCreationDTO) {
@@ -99,6 +111,38 @@ public class SeatBookingServiceImpl implements SeatBookingService {
         Optional<SeatBooking> seatBooking = seatBookingRepository.findById(seatBookingId);
         if(seatBooking.isPresent()){
             return convertSeatBookingToSeatBookingDTO(seatBooking.get());
+        }
+        throw new ResourceNotFoundException("seatBookingId not found: " + seatBookingId);
+    }
+
+    @Transactional
+    @Override
+    public SeatBookingDTO bookSeatBooking(Long seatBookingId) {
+        Optional<SeatBooking> seatBooking = seatBookingRepository.findById(seatBookingId);
+        if(seatBooking.isPresent()){
+            SeatBooking sb = seatBooking.get();
+            if(sb.getStatus().equals(Constants.Status.BOOKED)){
+                throw new AlreadyBookedException("already booked!");
+            }
+            sb.setStatus(Constants.Status.BOOKED);
+            flightService.decrementSeat(sb.getFlightId(), sb.getCabinType());
+            return convertSeatBookingToSeatBookingDTO(seatBookingRepository.save(sb));
+        }
+        throw new ResourceNotFoundException("seatBookingId not found: " + seatBookingId);
+    }
+
+    @Transactional
+    @Override
+    public SeatBookingDTO cancelSeatBooking(Long seatBookingId) {
+        Optional<SeatBooking> seatBooking = seatBookingRepository.findById(seatBookingId);
+        if(seatBooking.isPresent()){
+            SeatBooking sb = seatBooking.get();
+            if(sb.getStatus().equals(Constants.Status.AVAILABLE)){
+                throw new AlreadyAvailableException("already available!");
+            }
+            sb.setStatus(Constants.Status.AVAILABLE);
+            flightService.incrementSeat(sb.getFlightId(), sb.getCabinType());
+            return convertSeatBookingToSeatBookingDTO(seatBookingRepository.save(sb));
         }
         throw new ResourceNotFoundException("seatBookingId not found: " + seatBookingId);
     }

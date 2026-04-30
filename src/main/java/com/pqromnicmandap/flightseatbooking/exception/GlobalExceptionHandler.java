@@ -14,11 +14,22 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, List<String>>> handleResourceNotFoundException(ResourceNotFoundException ex){
         List<String> errors = Collections.singletonList(ex.getMessage());
         return new ResponseEntity<>(getErrorsMap(errors), new HttpHeaders(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(AlreadyAvailableException.class)
+    public ResponseEntity<Map<String, List<String>>> handleAlreadyAvailableException(AlreadyAvailableException ex){
+        List<String> errors = Collections.singletonList(ex.getMessage());
+        return new ResponseEntity<>(getErrorsMap(errors), new HttpHeaders(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(AlreadyBookedException.class)
+    public ResponseEntity<Map<String, List<String>>> handleAlreadyBookedException(AlreadyBookedException ex){
+        List<String> errors = Collections.singletonList(ex.getMessage());
+        return new ResponseEntity<>(getErrorsMap(errors), new HttpHeaders(), HttpStatus.FORBIDDEN);
     }
 
     private Map<String, List<String>> getErrorsMap(List<String> errors){

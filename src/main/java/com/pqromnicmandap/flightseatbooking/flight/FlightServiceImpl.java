@@ -1,5 +1,6 @@
 package com.pqromnicmandap.flightseatbooking.flight;
 
+import com.pqromnicmandap.flightseatbooking.constants.Constants;
 import com.pqromnicmandap.flightseatbooking.exception.ResourceNotFoundException;
 import com.pqromnicmandap.flightseatbooking.flight.dto.FlightCreationDTO;
 import com.pqromnicmandap.flightseatbooking.flight.dto.FlightDTO;
@@ -14,11 +15,15 @@ import java.util.Optional;
 public class FlightServiceImpl implements FlightService {
 
     private final FlightRepository flightRepository;
-    private final SeatBookingService seatBookingService;
+    private SeatBookingService seatBookingService;
 
     @Autowired
-    public FlightServiceImpl(FlightRepository flightRepository, SeatBookingService seatBookingService) {
+    public FlightServiceImpl(FlightRepository flightRepository) {
         this.flightRepository = flightRepository;
+    }
+
+    @Autowired
+    public void setSeatBookingService(SeatBookingService seatBookingService){
         this.seatBookingService = seatBookingService;
     }
 
@@ -88,6 +93,38 @@ public class FlightServiceImpl implements FlightService {
         Optional<Flight> flight = flightRepository.findById(id);
         if(flight.isPresent()){
             return convertFlightToFlightDTO(flight.get());
+        }
+        throw new ResourceNotFoundException("flightId not found: " + id);
+    }
+
+    @Override
+    public void incrementSeat(Long id, Constants.Cabin cabin) {
+        Optional<Flight> flight = flightRepository.findById(id);
+        if(flight.isPresent()){
+            Flight f = flight.get();
+            if (cabin.equals(Constants.Cabin.BUSINESS)){
+                f.setAvailableBusinessSeats(f.getAvailableBusinessSeats() + 1);
+            } else {
+                f.setAvailableEconomySeats(f.getAvailableEconomySeats() + 1);
+            }
+            flightRepository.save(f);
+            return;
+        }
+        throw new ResourceNotFoundException("flightId not found: " + id);
+    }
+
+    @Override
+    public void decrementSeat(Long id, Constants.Cabin cabin) {
+        Optional<Flight> flight = flightRepository.findById(id);
+        if(flight.isPresent()){
+            Flight f = flight.get();
+            if (cabin.equals(Constants.Cabin.BUSINESS)){
+                f.setAvailableBusinessSeats(f.getAvailableBusinessSeats() - 1);
+            } else {
+                f.setAvailableEconomySeats(f.getAvailableEconomySeats() - 1);
+            }
+            flightRepository.save(f);
+            return;
         }
         throw new ResourceNotFoundException("flightId not found: " + id);
     }
