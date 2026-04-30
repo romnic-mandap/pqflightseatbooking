@@ -2,9 +2,12 @@ package com.pqromnicmandap.flightseatbooking.flight;
 
 import com.pqromnicmandap.flightseatbooking.flight.dto.FlightCreationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -36,4 +39,17 @@ public class FlightController {
                 HttpStatus.OK
         );
     }
+
+    @GetMapping(value="/flights", produces={"application/json"})
+    public ResponseEntity<?> getFlights(
+            @RequestParam(required=true) @DateTimeFormat(iso=DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required=true) String origin,
+            @RequestParam(required=true) String destination
+            ){
+        return new ResponseEntity<>(
+                flightService.getFlights(date, origin, destination),
+                HttpStatus.OK
+        );
+    }
+
 }

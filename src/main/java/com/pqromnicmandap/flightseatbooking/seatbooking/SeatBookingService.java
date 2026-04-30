@@ -1,7 +1,10 @@
 package com.pqromnicmandap.flightseatbooking.seatbooking;
 
+import com.pqromnicmandap.flightseatbooking.constants.Constants;
 import com.pqromnicmandap.flightseatbooking.seatbooking.dto.SeatBookingCreationDTO;
 import com.pqromnicmandap.flightseatbooking.seatbooking.dto.SeatBookingDTO;
+
+import java.util.List;
 
 public interface SeatBookingService {
 
@@ -14,4 +17,8 @@ public interface SeatBookingService {
 
     SeatBookingDTO bookSeatBooking(Long seatBookingId);
     SeatBookingDTO cancelSeatBooking(Long seatBookingId);
+
+    List<SeatBookingDTO> getAllSeatBookings(
+            Long flightId, Constants.SeatLocation seatLocation, Constants.Cabin cabinType, Integer page
+    );
 }

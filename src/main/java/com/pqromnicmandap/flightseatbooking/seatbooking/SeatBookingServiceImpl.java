@@ -11,8 +11,12 @@ import com.pqromnicmandap.flightseatbooking.seatbooking.dto.SeatBookingCreationD
 import com.pqromnicmandap.flightseatbooking.seatbooking.dto.SeatBookingDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -145,6 +149,21 @@ public class SeatBookingServiceImpl implements SeatBookingService {
             return convertSeatBookingToSeatBookingDTO(seatBookingRepository.save(sb));
         }
         throw new ResourceNotFoundException("seatBookingId not found: " + seatBookingId);
+    }
+
+    @Override
+    public List<SeatBookingDTO> getAllSeatBookings(
+            Long flightId, Constants.SeatLocation seatLocation, Constants.Cabin cabinType, Integer page
+    ) {
+        Pageable pageable = PageRequest.of(
+                page,
+                10,
+                Sort.by("id").ascending()
+        );
+        return seatBookingRepository.getAllSeatBookings(
+                flightId, seatLocation, cabinType, pageable
+                ).stream()
+                .map(this::convertSeatBookingToSeatBookingDTO).toList();
     }
 
     private SeatBookingDTO convertSeatBookingToSeatBookingDTO(SeatBooking seatBooking){

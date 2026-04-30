@@ -9,6 +9,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -95,6 +97,12 @@ public class FlightServiceImpl implements FlightService {
             return convertFlightToFlightDTO(flight.get());
         }
         throw new ResourceNotFoundException("flightId not found: " + id);
+    }
+
+    @Override
+    public List<FlightDTO> getFlights(LocalDate date, String origin, String destination) {
+        return flightRepository.getAllFlights(date, origin, destination).stream()
+                .map(this::convertFlightToFlightDTO).toList();
     }
 
     @Override
